@@ -682,8 +682,8 @@ const Main: FC<IMainProps> = () => {
       )}
       <div className="flex rounded-t-2xl bg-white overflow-hidden">
         {/* sidebar */}
-        {!isMobile && renderSidebar()}
-        {isMobile && isShowSidebar && (
+        {!isAppMode && !isMobile && renderSidebar()}
+        {!isAppMode && isMobile && isShowSidebar && (
           <div className='fixed inset-0 z-50' style={{ backgroundColor: 'rgba(35, 56, 118, 0.2)' }} onClick={hideSidebar} >
             <div className='inline-block' onClick={e => e.stopPropagation()}>
               {renderSidebar()}
