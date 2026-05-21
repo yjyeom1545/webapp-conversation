@@ -706,7 +706,11 @@ const Main: FC<IMainProps> = () => {
 
           {
             hasSetInputs && (
-              <div className='relative grow pc:w-[794px] max-w-full mobile:w-full pb-[180px] mx-auto mb-3.5' ref={chatListDomRef}>
+              <div
+                className={`relative grow pc:w-[794px] max-w-full mobile:w-full mx-auto mb-3.5 ${isAppMode ? 'pb-[100px]' : 'pb-[180px]'}`}
+                style={isAppMode ? { paddingBottom: 'calc(100px + env(safe-area-inset-bottom))' } : undefined}
+                ref={chatListDomRef}
+              >
                 <Chat
                   chatList={chatList}
                   onSend={handleSend}
