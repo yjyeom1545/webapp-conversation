@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import produce, { setAutoFreeze } from 'immer'
 import { useBoolean, useGetState } from 'ahooks'
+import { useSearchParams } from 'next/navigation'
 import useConversation from '@/hooks/use-conversation'
 import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
@@ -32,6 +33,8 @@ const Main: FC<IMainProps> = () => {
   const media = useBreakpoints()
   const isMobile = media === MediaType.mobile
   const hasSetAppConfig = APP_ID && API_KEY
+  const searchParams = useSearchParams()
+  const isAppMode = searchParams.get('mode') === 'app'
 
   /*
   * app info
@@ -277,6 +280,21 @@ const Main: FC<IMainProps> = () => {
         setConversationList(conversations as ConversationItem[])
 
         if (isNotNewConversation) { setCurrConversationId(_conversationId, APP_ID, false) }
+
+        // 새 대화인 경우 Start Chat 버튼 없이 즉시 시작
+        if (!isNotNewConversation) {
+          setChatStarted()
+          if (introduction) {
+            setChatList([{
+              id: `${Date.now()}`,
+              content: introduction,
+              isAnswer: true,
+              feedbackDisabled: true,
+              isOpeningStatement: isShowPrompt,
+              suggestedQuestions: suggested_questions,
+            }])
+          }
+        }
 
         setInited(true)
       }
@@ -654,12 +672,14 @@ const Main: FC<IMainProps> = () => {
 
   return (
     <div className='bg-gray-100'>
-      <Header
-        title={APP_INFO.title}
-        isMobile={isMobile}
-        onShowSideBar={showSidebar}
-        onCreateNewChat={() => handleConversationIdChange('-1')}
-      />
+      {!isAppMode && (
+        <Header
+          title={APP_INFO.title}
+          isMobile={isMobile}
+          onShowSideBar={showSidebar}
+          onCreateNewChat={() => handleConversationIdChange('-1')}
+        />
+      )}
       <div className="flex rounded-t-2xl bg-white overflow-hidden">
         {/* sidebar */}
         {!isMobile && renderSidebar()}
@@ -671,7 +691,7 @@ const Main: FC<IMainProps> = () => {
           </div>
         )}
         {/* main */}
-        <div className='flex-grow flex flex-col h-[calc(100vh_-_3rem)] overflow-y-auto'>
+        <div className={`flex-grow flex flex-col ${isAppMode ? 'h-screen' : 'h-[calc(100vh_-_3rem)]'} overflow-y-auto`}>
           <ConfigSence
             conversationName={conversationName}
             hasSetInputs={hasSetInputs}
