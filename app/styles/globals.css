@@ -102,6 +102,23 @@ a {
   }
 } */
 
+/* app-mode: PWA/iOS 키보드 대응 */
+body.app-mode {
+  height: 100dvh;
+  height: var(--vv-height, 100dvh);
+  overflow: hidden;
+}
+
+.app-chat-container {
+  height: 100dvh;
+  height: var(--vv-height, 100dvh);
+}
+
+body.app-mode .chat-input-bar {
+  bottom: calc(var(--keyboard-height, 0px) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: 0;
+}
+
 /* CSS Utils */
 .h1 {
   padding-bottom: 1.5rem;

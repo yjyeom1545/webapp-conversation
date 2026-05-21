@@ -187,6 +187,33 @@ const Main: FC<IMainProps> = () => {
       }, 50)
     }
   }, [chatList, currConversationId])
+
+  useEffect(() => {
+    if (!isAppMode) return
+    document.body.classList.add('app-mode')
+    return () => { document.body.classList.remove('app-mode') }
+  }, [isAppMode])
+
+  useEffect(() => {
+    if (!isAppMode || typeof window === 'undefined' || !window.visualViewport) return
+    const vv = window.visualViewport
+    const update = () => {
+      document.documentElement.style.setProperty('--vv-height', `${vv.height}px`)
+      const kh = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+      document.documentElement.style.setProperty('--keyboard-height', `${kh}px`)
+      chatListDomRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' })
+    }
+    update()
+    vv.addEventListener('resize', update)
+    vv.addEventListener('scroll', update)
+    return () => {
+      vv.removeEventListener('resize', update)
+      vv.removeEventListener('scroll', update)
+      document.documentElement.style.removeProperty('--vv-height')
+      document.documentElement.style.removeProperty('--keyboard-height')
+    }
+  }, [isAppMode])
+
   // user can not edit inputs if user had send message
   const canEditInputs = !chatList.some(item => item.isAnswer === false) && isNewConversation
   const createNewChat = () => {
@@ -691,7 +718,7 @@ const Main: FC<IMainProps> = () => {
           </div>
         )}
         {/* main */}
-        <div className={`flex-grow flex flex-col ${isAppMode ? 'h-screen' : 'h-[calc(100vh_-_3rem)]'} overflow-y-auto`}>
+        <div className={`flex-grow flex flex-col overflow-y-auto ${isAppMode ? 'app-chat-container' : 'h-[calc(100vh_-_3rem)]'}`}>
           <ConfigSence
             conversationName={conversationName}
             hasSetInputs={hasSetInputs}
@@ -707,8 +734,7 @@ const Main: FC<IMainProps> = () => {
           {
             hasSetInputs && (
               <div
-                className={`relative grow pc:w-[794px] max-w-full mobile:w-full mx-auto mb-3.5 ${isAppMode ? 'pb-[100px]' : 'pb-[180px]'}`}
-                style={isAppMode ? { paddingBottom: 'calc(100px + env(safe-area-inset-bottom))' } : undefined}
+                className='relative grow pc:w-[794px] max-w-full mobile:w-full mx-auto mb-3.5 pb-[180px]'
                 ref={chatListDomRef}
               >
                 <Chat
